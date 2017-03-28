@@ -12,11 +12,31 @@
         android:textColor="@android:color/black"
         android:textSize="18dp"/>
 
-    <EditText
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Item To List"
-        android:id="@+id/edtTheItem"/>
+        android:orientation="horizontal">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:id="@+id/edtTheItem"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Desc"
+            android:id="@+id/edtTheItemDesc"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Price"
+            android:inputType="number"
+            android:id="@+id/edtTheItemPrice"/>
+
+    </LinearLayout>
 
     <Button
         android:layout_width="wrap_content"

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,9 +23,13 @@ import java.util.List;
 public class Main2Activity extends AppCompatActivity {
 
     EditText edtTheItem;
+    EditText edtDesc;
+    EditText edtPrice;
     ListView lstItems;
-    List<String> mItems;
-    ArrayAdapter<String> adapter;
+    //List<String> mItems;
+    //ArrayAdapter<String> adapter;
+    List<Expence> mItems;
+    ExpenceArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,19 +37,25 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
 
         edtTheItem = (EditText) findViewById(R.id.edtTheItem);
+        edtDesc = (EditText) findViewById(R.id.edtTheItemDesc);
+        edtPrice = (EditText) findViewById(R.id.edtTheItemPrice);
         lstItems = (ListView) findViewById(R.id.lstItems);
 
+        //mItems = new ArrayList<>();
         mItems = new ArrayList<>();
 
-        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mItems);
+        //adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mItems);
+        adapter = new ExpenceArrayAdapter(this,mItems);
 
         lstItems.setAdapter(adapter);
 
     }
 
     public void btnAddToList(View view) {
-        String item = edtTheItem.getText().toString();
-        mItems.add(item);
+        String itemName = edtTheItem.getText().toString();
+        String itemDesc = edtDesc.getText().toString();
+        double itemPrice = Double.valueOf(edtPrice.getText().toString());
+        mItems.add(new Expence(itemName,itemDesc,itemPrice));
         adapter.notifyDataSetChanged();
     }
 
@@ -82,7 +93,12 @@ public class Main2Activity extends AppCompatActivity {
                 if (json != null){
                     for (int i = 0; i < json.length(); i++) {
                         try {
-                            mItems.add(json.getString(i));
+                            JSONObject jsonExpnce = json.getJSONObject(i);
+                            Expence expense = new Expence(
+                                    jsonExpnce.getString("name"),
+                                    jsonExpnce.getString("description"),
+                                    jsonExpnce.getDouble("price"));
+                            mItems.add(expense);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -105,16 +121,27 @@ public class Main2Activity extends AppCompatActivity {
         Thread save = new Thread(new Runnable() {
             @Override
             public void run() {
-                JSONArray jsonArray = new JSONArray(mItems);
                 OutputStream outputStream = null;
+                JSONArray jsonArray = new JSONArray();
                 try {
-                    outputStream = openFileOutput("liran",MODE_PRIVATE);
+                    for (Expence expence : mItems) {
+                        JSONObject jsonExpense = new JSONObject();
+                        jsonExpense.put("name", expence.getName());
+                        jsonExpense.put("description", expence.getDesc());
+                        jsonExpense.put("price", expence.getPrice());
+                        jsonArray.put(jsonExpense);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    outputStream = openFileOutput("liran", MODE_PRIVATE);
                     outputStream.write(jsonArray.toString().getBytes());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     if (outputStream != null)
                         try {
                             outputStream.close();
